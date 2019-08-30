@@ -12,8 +12,8 @@ app.get('/api',(req,res)=>{
   res.send('json');
 });
 
-app.get('/apiabout',(req,res)=>{
-  res.send('about');
+app.get('/login',(req,res)=>{
+  res.send('access login');
 })
 
 app.get('*',(req,res) => {
