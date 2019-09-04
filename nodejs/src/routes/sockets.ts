@@ -8,12 +8,6 @@ let uniqueID = (function(){
 
 export class IOServerConnection {
 
-    /*
-    sockets.on('connect', (socket:SocketIO.Socket)=>{
-        //클라이언트 고유값 생성 
-        console.log("Connect")
-    });*/
-
     constructor(io:SocketIO.Server, sockets:SocketIO.Namespace) {
         self.io = io;
         self.sockets = sockets;
