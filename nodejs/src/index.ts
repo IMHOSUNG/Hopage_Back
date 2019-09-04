@@ -1,35 +1,21 @@
-"use strict";
 import http from 'http'
-import express = require("express");
-//import socketIo = require('socket.io')
-//import bodyParser from 'body-parser';
-//import path from 'path';
-//import api from './routes'
-//import console = require('console');
-import * as CustomSocket from './routes/sockets'
+import express from 'express' // 1
+import socketIo from 'socket.io'
+import { IOServerConnection } from '../src/routes/sockets'
+
 
 const app = express();
+//루트에 대한 get 요청에 응답
 
-/*app.use(express.static(path.resolve(__dirname,'..','build')));
+const server = http.createServer(app);
+server.listen(3000);
+console.log("listening at http://127.0.0.1:3000...");
+let io = socketIo.listen(server);
+let sockets = io.sockets
+let IOServerCon = new IOServerConnection(io,sockets)
+//클로저를 사용해, private한 유니크 id를 만든다
 
-app.get('/api',(req,res)=>{
-  res.send('json');
-});
 
-app.get('/login',(req,res)=>{
-  res.send('access login');
-})
-
-app.get('*',(req,res) => {
-  res.sendFile(path.resolve(__dirname,'..','build','index.html'));
-})*/
-
-var server = http.createServer(app).listen(app.get('port'),
-()=> {
-  console.log(
-    "start Server"
-  )
-})
-
-require ('./routes/sockets.ts').initialize(server)
-
+//서버 소켓 생성
+//소켓 Connection 이벤트 함수
+IOServerCon.setConnection()
