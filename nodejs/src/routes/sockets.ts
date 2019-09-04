@@ -1,10 +1,11 @@
+import http from 'http'
+import express from 'express' // 1
+import socketIo from 'socket.io'
+//import socketAuth from 'socket.io-auth'
+import * as killPort from 'cluster'
+//import adapter from 'socket.io-redis'
 
 let self:any = this
-
-let uniqueID = (function(){
-    var id = 0;
-    return function(){ return id++; };
-})();
 
 export class IOServerConnection {
 
@@ -13,41 +14,11 @@ export class IOServerConnection {
         self.sockets = sockets;
     }
     
-    public setConnection = () => {
-        self.sockets.on('connect' , (socket:SocketIO.Socket) => {
-            this.setClientID(socket);
-            this.serverReceiver(socket)
-            this.disconnect(socket)
+    public setConnection = (callbackFunc:any) => {
+        self.sockets.on('connect' , 
+            (socket:SocketIO.Socket) => {
+                callbackFunc(socket,self.io)
         })
     }
-
-    private setClientID = (socket:SocketIO.Socket) => {
-        let clientID = uniqueID();
-        
-        socket.on('setClientID' ,() => {
-          console.log('Connection ' + clientID)
-          self.io.sockets.emit('getClientID',{clientID : clientID})
-        })
-      }
-      
-    private serverReceiver = (socket:SocketIO.Socket) => {
-        socket.on('serverReceiver', (data)=>{
-            //클라이언트 이베트 호출     
-            self.io.sockets.emit('clientReceiver', {clientID: data.clientID, message: data.message});  
-        });
-    }
-    
-    private disconnect = (socket:SocketIO.Socket) => {
-        socket.on('disconnect', (data)=>{
-            console.log(data.clientID+' disconnect');
-            self.io.sockets.emit('clientRecevier', {clientID : data.clientID , message : 'disconnect'})
-        })
-    }
-    
-    private  reconnet = (socket:SocketIO.Socket) => {
-        socket.on('reconnect', (data) => {
-            console.log('reconnect');
-        })
-    }
-
 }
+

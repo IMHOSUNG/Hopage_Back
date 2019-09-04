@@ -1,11 +1,11 @@
 import http from 'http'
 import express from 'express' // 1
 import socketIo from 'socket.io'
-import socketAuth from 'socket.io-auth'
+//import socketAuth from 'socket.io-auth'
 import * as killPort from 'cluster'
-import adapter from 'socket.io-redis'
+//import adapter from 'socket.io-redis'
 import { IOServerConnection } from '../src/routes/sockets'
-
+import { con_func } from '../src/routes/socketfunc'
 
 const app = express();
 //루트에 대한 get 요청에 응답
@@ -22,4 +22,5 @@ let IOServerCon = new IOServerConnection(io,sockets)
 
 //서버 소켓 생성
 //소켓 Connection 이벤트 함수
-IOServerCon.setConnection()
+IOServerCon.setConnection(con_func.setClientID)
+IOServerCon.setConnection(con_func.serverReceiver)
