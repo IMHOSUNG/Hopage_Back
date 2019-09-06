@@ -8,21 +8,20 @@ let uniqueID = (function () {
     return function(){return ++id}
 })();
 
-export const IOserver = (server:any,Auth:boolean,userInfo?:string) => {
+export const IOserver = (accessurl:string, server:any,Auth:boolean,userInfo?:string) => {
     
     if(Auth === true){
         let io = socketIo.listen(server)
         io.adapter(redis({host: 'localhost', port : 6379}))
-        let sockets = io.sockets
-        
+        let sockets =  io.of(accessurl)
+
         sockets.on('connect' , (socket)=> {
             let clientID= uniqueID()
-
             console.log("connect something to "+process.pid)
             console.log("socket id is " + socket.id)
-            events.setClientID(socket,io,clientID)
-            events.serverReceiver(socket,io,clientID);
-            events.disconnect(socket,io)
+            events.setClientID(socket,sockets,clientID)
+            events.serverReceiver(socket,sockets,clientID);
+            //events.disconnect(socket,io)
         })
 
     }else{
