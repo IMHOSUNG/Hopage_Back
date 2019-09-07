@@ -7,6 +7,7 @@ import jwt from 'jsonwebtoken'
 import mongoose from 'mongoose'
 import dbconfig from './config/dbconfig'
 import {apiIndexRouter} from './routes/api'
+import bodyParser from 'body-parser'
 
 const clusterModule = false
 
@@ -24,7 +25,8 @@ if(clusterModule && cluster.isMaster ){
     const port = 3000;
 
     //bodyparser post send 함수 >> json 파일 형식 처리
-    app.use(express.json())
+    app.use(bodyParser.urlencoded({extended: false}))
+    app.use(bodyParser.json())
     //jwt 생성 시크릿 키 지정
     app.set('jwt-secret',dbconfig.secret)
     
@@ -50,7 +52,7 @@ if(clusterModule && cluster.isMaster ){
     console.log(`listening at http://127.0.0.1:${port}...`);
     console.log('pid ' + process.pid)
 
-    mongoose.connect(dbconfig.mongodbUri)
+    mongoose.connect(dbconfig.mongodbUri,{useNewUrlParser: true, useCreateIndex: true})
     const db = mongoose.connection
     db.on('error', console.error)
     db.once('open', ()=>{
