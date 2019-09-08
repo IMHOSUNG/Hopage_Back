@@ -37,9 +37,7 @@ if(clusterModule && cluster.isMaster ){
     //use는 그 경로에 따라 보내 주는 형식
 
     //url에 따른 라우터 처리
-    //app.use('/ws',(req:express.Request,res:express.Response)=> {
-      
-    
+
     app.get('/', ()=>{
         console.log('access / ')
     })

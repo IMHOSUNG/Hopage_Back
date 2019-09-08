@@ -12,9 +12,10 @@
 }
 postman 하면서 마지막 끝에 , 있어서 오류... 잘 찾아가면서 하자
 */
+'use strict'
 import jwt from 'jsonwebtoken'
-import { Request, Response } from 'express'
-import {User, IUser} from './authSchema'
+import { Express, Request, Response } from 'express'
+import {User} from './authSchema'
 
 export const register = (req:Request, res:Response) => {
     const { username, password } = req.body
@@ -114,7 +115,10 @@ export const login = (req:Request, res:Response) => {
         // respond the token 
     const respond = (token:any) => {
         console.log(token)
-        res.send(token)
+        res.json({
+            message: 'logged in successfully',
+            token
+        })
     }
 
 
@@ -130,6 +134,14 @@ export const login = (req:Request, res:Response) => {
     .then(check)
     .then(respond)
     .catch(onError)
+}
+
+export const check = (req:any, res:Response) => {
+    
+    res.json({
+        success: true,
+        info: req.decoded
+    })
 }
 
 
