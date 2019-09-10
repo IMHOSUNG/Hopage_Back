@@ -11,17 +11,24 @@ let uniqueID = (function () {
 export const IOserver = (accessurl:string, server:any,Auth:boolean,userInfo?:string) => {
     
     if(Auth === true){
-        let io = socketIo.listen(server)
-        io.adapter(redis({host: 'localhost', port : 6379}))
-        let sockets =  io.of(accessurl)
 
-        sockets.on('connect' , (socket)=> {
+        //of와 path의 개념이 다르다...!!
+        //
+        let io = socketIo({path:accessurl}).listen(server)
+        io.adapter(redis({host: 'localhost', port : 6379}))
+        //console.log(server.port)
+
+        io.on('connect' , (socket)=> {
             let clientID= uniqueID()
             console.log("connect something to "+process.pid)
             console.log("socket id is " + socket.id)
-            events.setClientID(socket,sockets,clientID)
-            events.serverReceiver(socket,sockets,clientID);
-            //events.disconnect(socket,io)
+            events.setClientID(socket,io,clientID)
+            events.serverReceiver(socket,io,clientID);
+            
+            if(accessurl === '/time'){
+                events.getServerTimeInterval(socket,io,10000)
+                events.disconnect(socket,io)
+            }
         })
 
     }else{

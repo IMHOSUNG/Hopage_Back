@@ -1,4 +1,4 @@
-import {Document, Schema, Model, model} from 'mongoose'
+import {Schema, model} from 'mongoose'
 let self:any = this;
 const User = new Schema({
     username: String,

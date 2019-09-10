@@ -3,7 +3,6 @@ import {IOserver} from './routes/ws/socketIO'
 import cluster from 'cluster'
 import os from 'os'
 import express from 'express'
-import jwt from 'jsonwebtoken'
 import mongoose from 'mongoose'
 import dbconfig from './config/dbconfig'
 import {apiIndexRouter} from './routes/api'
@@ -23,6 +22,7 @@ if(clusterModule && cluster.isMaster ){
 
     const app = express()
     const port = 3000;
+    const port2 = 3001;
 
     //bodyparser post send 함수 >> json 파일 형식 처리
     app.use(bodyParser.urlencoded({extended: false}))
@@ -33,6 +33,9 @@ if(clusterModule && cluster.isMaster ){
     //http 서버 생성 및 포트 지정
     const server = http.createServer(app);
     server.listen(port); 
+
+    const server2 = http.createServer(app);
+    server2.listen(port2)
     //get,post 등은 router가 받는 형식에 따른 처리
     //use는 그 경로에 따라 보내 주는 형식
 
@@ -44,7 +47,8 @@ if(clusterModule && cluster.isMaster ){
     app.use('/api', apiIndexRouter)
 
     IOserver('/ws',server,true)
-
+    IOserver('/time',server2,true)
+    //IOserver('/time',server2,true)
  
     //서버 연결 확인 및 pid 확인
     console.log(`listening at http://127.0.0.1:${port}...`);
