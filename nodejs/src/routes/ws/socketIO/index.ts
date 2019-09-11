@@ -1,3 +1,4 @@
+import http from 'http'
 import socketIo from 'socket.io'
 import { events } from './events'
 import console = require('console');
@@ -8,14 +9,18 @@ let uniqueID = (function () {
     return function(){return ++id}
 })();
 
-export const IOserver = (accessurl:string, server:any,Auth:boolean,userInfo?:string) => {
+export const IOserver = (accessurl:string,Auth:boolean,FrameWork:any,port:number) => {
     
     if(Auth === true){
 
         //of와 path의 개념이 다르다...!!
         //
-        let io = socketIo({path:accessurl}).listen(server)
+        
+        let httpConnect = http.createServer(FrameWork);
+        httpConnect.listen(port)
+        let io = socketIo({path:accessurl}).listen(httpConnect)
         io.adapter(redis({host: 'localhost', port : 6379}))
+        FrameWork.set(accessurl, io)
         //console.log(server.port)
 
         io.on('connect' , (socket)=> {

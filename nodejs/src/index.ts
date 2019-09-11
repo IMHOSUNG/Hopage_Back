@@ -7,6 +7,7 @@ import mongoose from 'mongoose'
 import dbconfig from './config/dbconfig'
 import {apiIndexRouter} from './routes/api'
 import bodyParser from 'body-parser'
+import helmet from 'helmet'
 
 const clusterModule = false
 
@@ -24,6 +25,9 @@ if(clusterModule && cluster.isMaster ){
     const port = 3000;
     const port2 = 3001;
 
+    //xss 공격 방지 
+    app.use(helmet.xssFilter())
+
     //bodyparser post send 함수 >> json 파일 형식 처리
     app.use(bodyParser.urlencoded({extended: false}))
     app.use(bodyParser.json())
@@ -34,8 +38,8 @@ if(clusterModule && cluster.isMaster ){
     const server = http.createServer(app);
     server.listen(port); 
 
-    const server2 = http.createServer(app);
-    server2.listen(port2)
+    //const server2 = http.createServer(app);
+    //server2.listen(port2)
     //get,post 등은 router가 받는 형식에 따른 처리
     //use는 그 경로에 따라 보내 주는 형식
 
@@ -46,8 +50,9 @@ if(clusterModule && cluster.isMaster ){
     })
     app.use('/api', apiIndexRouter)
 
-    IOserver('/ws',server,true)
-    IOserver('/time',server2,true)
+    IOserver('/ws',true, app, port2)
+    IOserver('/time',true, app, 3002)
+    
     //IOserver('/time',server2,true)
  
     //서버 연결 확인 및 pid 확인
