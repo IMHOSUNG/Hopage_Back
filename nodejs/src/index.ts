@@ -11,17 +11,21 @@ import helmet from 'helmet'
 const rPort = 3000;
 const sPort1 = 3010;
 const sPort2 = 3020;
-const clusterModule = true
+const clusterModule = false
 
 // 클러스터의 worker는 해당 포트 번호를 공유한다.
 // 하지만 fork 의 특성상 새로운 프로세스 생성 메모리를 공유하지 않는다.
+
+// 쓰레드도 있던 데 어떠한 차이점이 있을까??
 if(clusterModule && cluster.isMaster ){
     var cpus = os.cpus().length;
-    for (var i = 0; i < cpus/2; i++) {
+    for (var i = 0; i < cpus; i++) {
       cluster.fork()
     }
     cluster.on('exit', function(worker:any, code:any, signal:any) {
         console.log('worker ' + worker.process.pid + ' died')
+        console.log("worker를 재 생성 합니다. ")
+        cluster.fork()
     })
 }else {
 
@@ -33,7 +37,6 @@ if(clusterModule && cluster.isMaster ){
     //jwt 생성 시크릿 키 지정    
     app.set('jwt-secret',dbconfig.secret)
     
-    //http 서버 생성 및 포트 지정
     MongoDBset(dbconfig.mongodbUri)
     REST_API_server('/api',true,app,rPort)
     Socket_IO_server('/ws',true, app, sPort1)

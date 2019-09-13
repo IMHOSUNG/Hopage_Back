@@ -13,13 +13,8 @@
 postman 하면서 마지막 끝에 , 있어서 오류... 잘 찾아가면서 하자
 */
 'use strict'
-import jwt from 'jsonwebtoken'
-import { Express, Request, Response } from 'express'
-import { memo } from 'react'
-import { events } from '../../ws/socketIO/events'
-import SocketIo from 'socket.io'
+import {  Request, Response } from 'express'
 
-//url : http://domain.co.kr/api/monitor/state
 export const state = (req:Request, res:Response) => {
     const { cpu, memory } = req.body
     console.log(cpu)
