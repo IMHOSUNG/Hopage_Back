@@ -9,13 +9,11 @@ let uniqueID = (function () {
     return function(){return ++id}
 })();
 
-export const IOserver = (accessurl:string,Auth:boolean,FrameWork:any,port:number) => {
+export const Socket_IO_server = (accessurl:string,Auth:boolean,FrameWork:any,port:number) => {
     
     if(Auth === true){
 
         //of와 path의 개념이 다르다...!!
-        //
-        
         let httpConnect = http.createServer(FrameWork);
         httpConnect.listen(port)
         let io = socketIo({path:accessurl}).listen(httpConnect)

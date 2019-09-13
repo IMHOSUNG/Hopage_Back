@@ -1,16 +1,20 @@
-import http from 'http'
-import {IOserver} from './routes/ws/socketIO'
+
+import {Socket_IO_server} from './routes/ws/socketIO'
+import {REST_API_server} from './routes/api/index'
 import cluster from 'cluster'
 import os from 'os'
 import express from 'express'
-import mongoose from 'mongoose'
 import dbconfig from './config/dbconfig'
-import {apiIndexRouter} from './routes/api'
-import bodyParser from 'body-parser'
+import {MongoDBset} from './dbmodel/index'
 import helmet from 'helmet'
 
-const clusterModule = false
+const rPort = 3000;
+const sPort1 = 3010;
+const sPort2 = 3020;
+const clusterModule = true
 
+// 클러스터의 worker는 해당 포트 번호를 공유한다.
+// 하지만 fork 의 특성상 새로운 프로세스 생성 메모리를 공유하지 않는다.
 if(clusterModule && cluster.isMaster ){
     var cpus = os.cpus().length;
     for (var i = 0; i < cpus/2; i++) {
@@ -22,47 +26,21 @@ if(clusterModule && cluster.isMaster ){
 }else {
 
     const app = express()
-    const port = 3000;
-    const port2 = 3001;
-
     //xss 공격 방지 
     app.use(helmet.xssFilter())
-
-    //bodyparser post send 함수 >> json 파일 형식 처리
-    app.use(bodyParser.urlencoded({extended: false}))
-    app.use(bodyParser.json())
-    //jwt 생성 시크릿 키 지정
+    //json 파일 형식 처리
+    app.use(express.json())
+    //jwt 생성 시크릿 키 지정    
     app.set('jwt-secret',dbconfig.secret)
     
     //http 서버 생성 및 포트 지정
-    const server = http.createServer(app);
-    server.listen(port); 
-
-    //const server2 = http.createServer(app);
-    //server2.listen(port2)
-    //get,post 등은 router가 받는 형식에 따른 처리
-    //use는 그 경로에 따라 보내 주는 형식
-
-    //url에 따른 라우터 처리
-
-    app.get('/', ()=>{
-        console.log('access / ')
-    })
-    app.use('/api', apiIndexRouter)
-
-    IOserver('/ws',true, app, port2)
-    IOserver('/time',true, app, 3002)
-    
-    //IOserver('/time',server2,true)
+    MongoDBset(dbconfig.mongodbUri)
+    REST_API_server('/api',true,app,rPort)
+    Socket_IO_server('/ws',true, app, sPort1)
+    Socket_IO_server('/time',true, app, sPort2)
  
     //서버 연결 확인 및 pid 확인
-    console.log(`listening at http://127.0.0.1:${port}...`);
+    console.log(`Listening at http://127.0.0.1:${rPort}...`);
     console.log('pid ' + process.pid)
 
-    mongoose.connect(dbconfig.mongodbUri,{useNewUrlParser: true, useCreateIndex: true})
-    const db = mongoose.connection
-    db.on('error', console.error)
-    db.once('open', ()=>{
-    console.log('connected to mongodb server')
-})
 }
