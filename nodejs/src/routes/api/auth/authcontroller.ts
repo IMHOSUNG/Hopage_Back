@@ -59,7 +59,7 @@ export const register = (req:Request, res:Response) => {
 
     // run when there is an error (username exists)
     const onError = (error:any) => {
-        res.status(409).json({
+        res.status(410).json({
             message: error.message
         })
     }
@@ -74,7 +74,7 @@ export const register = (req:Request, res:Response) => {
     .catch(onError)
 }
 
-export const login = (req:Request, res:Response) => {
+export const login = async(req:Request, res:Response) => {
     const {username, password} = req.body
     const secret = req.app.get('jwt-secret')
     console.log("check "+username);
@@ -86,7 +86,7 @@ export const login = (req:Request, res:Response) => {
         }
         else{
             if(user.password == password){
-                const p = new Promise((resolve,reject)=>{
+                const p = new Promise(async(resolve,reject)=>{
                     jwt.sign(
                         {
                             _id: user._id,
@@ -113,9 +113,9 @@ export const login = (req:Request, res:Response) => {
     }
 
         // respond the token 
-    const respond = (token:any) => {
+    const respond = async(token:any) => {
         console.log(token)
-        res.json({
+        res.status(200).json({
             message: 'logged in successfully',
             token
         })
@@ -123,12 +123,12 @@ export const login = (req:Request, res:Response) => {
 
 
     const onError = (error:any) => {
-        res.status(403).json({
+        return res.status(403).json({
             message: error.message
         })
     }
 
-    User.findOne({
+    await User.findOne({
         username
     }).exec()
     .then(check)

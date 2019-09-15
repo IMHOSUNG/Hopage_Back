@@ -6,11 +6,13 @@ import os from 'os'
 import express from 'express'
 import dbconfig from './config/dbconfig'
 import {MongoDBset} from './dbmodel/index'
+import mongoose from 'mongoose'
 import helmet from 'helmet'
+import cors from 'cors'
 
-const rPort = 3000;
-const sPort1 = 3010;
-const sPort2 = 3020;
+const rPort = 3030;
+const sPort1 = 3040;
+const sPort2 = 3050;
 const clusterModule = false
 
 // 클러스터의 worker는 해당 포트 번호를 공유한다.
@@ -25,12 +27,13 @@ if(clusterModule && cluster.isMaster ){
     cluster.on('exit', function(worker:any, code:any, signal:any) {
         console.log('worker ' + worker.process.pid + ' died')
         console.log("worker를 재 생성 합니다. ")
-        cluster.fork()
+        //cluster.fork()
     })
 }else {
 
     const app = express()
     //xss 공격 방지 
+    app.use(cors())
     app.use(helmet.xssFilter())
     //json 파일 형식 처리
     app.use(express.json())
@@ -45,5 +48,4 @@ if(clusterModule && cluster.isMaster ){
     //서버 연결 확인 및 pid 확인
     console.log(`Listening at http://127.0.0.1:${rPort}...`);
     console.log('pid ' + process.pid)
-
 }
